@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres-db:
+    image: postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+    networks:
+      - codefunn_network
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres-db
+    networks:
+      - codefunn_network
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+
+volumes:
+  database_postgres:
+
+networks:
+  codefunn_network:
+    driver: bridge
