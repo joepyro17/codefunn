@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-	. "pyro.com/codefunn/databases"
+	database "pyro.com/codefunn/databases"
 	. "pyro.com/codefunn/routers"
 )
 
@@ -22,10 +22,10 @@ func main() {
 	app.Use(cors.New())
 
 	// DB
-	db := DbConnection()
+	database.DbConnection()
 
 	// Routes
-	SetupRoutes(app, db)
+	SetupRoutes(app)
 
 	port := os.Getenv("FIBER_PORT")
 

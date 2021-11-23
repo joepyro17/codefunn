@@ -10,7 +10,11 @@ import (
 	. "pyro.com/codefunn/models"
 )
 
-func DbConnection() *gorm.DB {
+var DB *gorm.DB
+
+func DbConnection(){
+	var err error
+
 	errEnv := godotenv.Load(".env")
 	if errEnv != nil {
 		log.Fatal("Error loading .env file")
@@ -23,13 +27,13 @@ func DbConnection() *gorm.DB {
 	DbPort := os.Getenv("POSTGRES_PORT")
 
 	dsn := "host="+ DbHostname +" user=" + DbUser + " password=" + DbPassword + " dbname=" + DbName + " port=" + DbPort + " sslmode=disable"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
 
 	// Migrate schemas
-	err = db.AutoMigrate(&Topic{})
+	err = DB.AutoMigrate(&Blog{})
 	if err != nil {
 		log.Fatal("Failed in db.AutoMigrate")
 	}
@@ -42,6 +46,5 @@ func DbConnection() *gorm.DB {
 	//result := db.Create(&Topic{Title: "How to start coding in Go", Content: "This is Content"})
 	//fmt.Println(result.RowsAffected)
 
-	return db
 
 }
