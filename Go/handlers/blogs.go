@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm/clause"
 	database "pyro.com/codefunn/databases"
-	. "pyro.com/codefunn/models"
+	"pyro.com/codefunn/models"
 )
 
 
 func CreateBlog(ctx *fiber.Ctx) error {
 	db := database.DB
-	blog := new(Blog)
+	blog := new(models.Blog)
 
 	err := ctx.BodyParser(blog)
 	if err != nil {
@@ -27,10 +28,10 @@ func CreateBlog(ctx *fiber.Ctx) error {
 
 func GetBlogs(ctx *fiber.Ctx) error {
 	db := database.DB
-	var blogs []Blog
+	var blogs []models.Blog
 
-	db.Find(&blogs)
-
+	//db.Find(&blogs)
+	db.Preload(clause.Associations).Find(&blogs)
 	if len(blogs) == 0 {
 		return ctx.Status(404).JSON(fiber.Map{"status": "error", "message": "No Blogs Present", "data": nil})
 	}
@@ -40,9 +41,10 @@ func GetBlogs(ctx *fiber.Ctx) error {
 
 func GetBlogById(ctx *fiber.Ctx) error {
 	db := database.DB
-	var blog Blog
+	blog := new(models.Blog)
 
-	db.Find(&blog, "ID=?", ctx.Params("id"))
+	//db.Find(&blog, "ID=?", ctx.Params("id"))
+	db.Preload(clause.Associations).Find(&blog, "id=?", ctx.Params("id"))
 
 	if blog.ID == 0 {
 		return ctx.Status(404).JSON(fiber.Map{"status": "error", "message": "No Blog Present", "data": nil})
@@ -54,7 +56,7 @@ func GetBlogById(ctx *fiber.Ctx) error {
 
 func UpdateBlog(ctx *fiber.Ctx) error {
 	db := database.DB
-	blog := new(Blog)
+	blog := new(models.Blog)
 
 	db.Find(&blog, "id=?", ctx.Params("id"))
 
@@ -62,7 +64,7 @@ func UpdateBlog(ctx *fiber.Ctx) error {
 		return ctx.Status(404).JSON(fiber.Map{"status": "error", "message": "No Blog Present", "data": nil})
 	}
 
-	newBlog := new(Blog)
+	newBlog := new(models.Blog)
 
 	err := ctx.BodyParser(newBlog)
 	if err != nil {
@@ -72,10 +74,11 @@ func UpdateBlog(ctx *fiber.Ctx) error {
 	blog.Title = newBlog.Title
 	blog.Content = newBlog.Content
 	blog.FeatureImageURL = newBlog.FeatureImageURL
+	blog.CategoryID = newBlog.CategoryID
 
 	err = db.Save(&blog).Error
 	if err != nil {
-		return ctx.Status(500).JSON(fiber.Map{"status": "error", "message": "Could Not Update blog", "data": err})
+		return ctx.Status(500).JSON(fiber.Map{"status": "error", "message": "Could Not Update Blog", "data": err})
 	}
 
 	return ctx.JSON(fiber.Map{"status": "success", "message": "Updated Blog", "data": blog})
@@ -83,17 +86,31 @@ func UpdateBlog(ctx *fiber.Ctx) error {
 
 func DeleteBlog(ctx *fiber.Ctx) error {
 	db := database.DB
-	blog := new(Blog)
+	blog := new(models.Blog)
 
 	db.Find(&blog, "id=?", ctx.Params("id"))
 	if blog.ID == 0 {
 		return ctx.Status(404).JSON(fiber.Map{"status": "error", "message": "No Blog Present", "data": nil})
 	}
 
-	err := db.Delete(&blog, "id=?").Error
+	err := db.Delete(&blog, "id=?", ctx.Params("id")).Error
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{"status": "error", "message": "Failed to Delete Blog", "data": err})
 	}
 
 	return ctx.JSON(fiber.Map{"status": "success", "message": "Deleted Blog"})
+}
+
+func GetBlogByCategoryId(ctx *fiber.Ctx) error {
+	db := database.DB
+	var blogs []models.Blog
+
+	db.Preload(clause.Associations).Find(&blogs, "category_id=?", ctx.Params("category_id"))
+
+	if len(blogs) == 0 {
+		return ctx.Status(404).JSON(fiber.Map{"status": "error", "message": "No Categories Present", "data": nil})
+	}
+
+	return ctx.JSON(fiber.Map{"status": "success", "message": "Blogs Found", "data": blogs})
+
 }

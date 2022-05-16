@@ -33,18 +33,11 @@ func DbConnection(){
 	}
 
 	// Migrate schemas
-	err = DB.AutoMigrate(&Blog{})
+	err = DB.AutoMigrate(&Blog{}, &Category{})
 	if err != nil {
 		log.Fatal("Failed in db.AutoMigrate")
 	}
 
 	fmt.Println("DB Connection Success")
-
-
-	// Testing
-	// Create a Topic
-	//result := db.Create(&Topic{Title: "How to start coding in Go", Content: "This is Content"})
-	//fmt.Println(result.RowsAffected)
-
 
 }

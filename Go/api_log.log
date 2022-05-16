@@ -1,0 +1,13 @@
+[10:16:01] 200 - 14.30725ms GET /web_api/categories 
+[10:16:10] 201 - 22.979083ms POST /web_api/categories ----------------------------552683759286122919058741
+Content-Disposition: form-data; name="name"
+
+GoLang
+----------------------------552683759286122919058741--
+
+[10:16:33] 201 - 25.976667ms POST /web_api/categories ----------------------------900898784060996435873465
+Content-Disposition: form-data; name="name"
+
+GoLang
+----------------------------900898784060996435873465--
+ {"data":{"ID":8,"CreatedAt":"2022-04-29T10:16:33.66259+07:00","UpdatedAt":"2022-04-29T10:16:33.66259+07:00","DeletedAt":null,"name":"GoLang"},"message":"Created Category","status":"success"}
